@@ -1,0 +1,1 @@
+SPIDER_MODULES = ['crawl.spiders']
