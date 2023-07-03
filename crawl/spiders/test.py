@@ -30,6 +30,7 @@ class Test(Spider):
         yield CaseSensitiveRequest('https://httpbin.org/headers')
 
     def parse(self, response):
-        ## NOTE: Why is resposne from httpbin.org 
+        ## NOTE: Why is the response's request header keys different from httpbin.org?
+        ##       is httpbin doing its own casing?
         self.logger.info(f"{response.request.headers.keys() = }")
         self.logger.info(f"{response.json() = }")
