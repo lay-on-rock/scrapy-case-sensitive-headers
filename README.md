@@ -1,8 +1,15 @@
-### Scrapy case senstive headers (in development)
+### Scrapy case senstive, alphabetically-ordered headers
 
 #### Project start
 ```bash
 pip install -r requirements/dev.txt
+# OPTIONAL: If you also want to order Content-Length in the request headers,
+# Modify site package
+# => twisted/web/_newclient.py
+# Change lines 787-790 from 
+# self._writeHeaders(transport, networkString("Content-Length": ...))
+# to: 
+# self._writeHeaders(transport, None)
 scrapy crawl test
 ```
 
@@ -79,8 +86,6 @@ References:
 
 #### Current issues
 
-- `Content-Length` appears twice if specified in request headers. The automatically generated Content-Length header becomes the first key in the dictionary. See:
-
-![issue-two-content-headers.png](assets/issue-two-content-length-headers.png)
+- It is a lot of work to modify the twisted code itself to make content-length header respect order, there should be an easier work-around to that
 
 ----
