@@ -1,36 +1,35 @@
-"""Spider that logs request.headers.keys() & preserves header casing"""
-
+import json
 from scrapy.spiders import Spider
+from scrapy.http import Request
 
-# Ineffective strategy:
-# Comes from: https://github.com/scrapy/scrapy/issues/5910,
-#             https://github.com/scrapy/scrapy/issues/2711
-# from twisted.web.http_headers import Headers as TwistedHeaders
-# TwistedHeaders._caseMappings[b'chicken'] = b'CHICKEN'
 
-from crawl.request import CaseSensitiveRequest
+from twisted.web.http_headers import Headers as TwistedHeaders
 
 class Test(Spider):
     name = 'test'
     custom_settings = {
         'DEFAULT_REQUEST_HEADERS': {
-            # Test casing
-            'lowercase': 'a',
-            'mixOfLoWERanDUPPerCase': 'b',
-            # Test order
-            'CHICKEN': 'chicken',
-            'EGG': 'egg',
-        }
+            'aA': 'a',
+            'Bb': 'b',
+            'CC': 'c',
+            'Content-Length': '14',
+            'dD': 'd',
+        },
     }
-
-    # DOES NOT WORK
-    # start_urls = ['https://httpbin.org/headers']
+    
+    # Preserve casing of headers
+    TwistedHeaders._caseMappings[b'aa'] = b'aA'
+    TwistedHeaders._caseMappings[b'bb'] = b'Bb'
+    TwistedHeaders._caseMappings[b'cc'] = b'CC'
+    TwistedHeaders._caseMappings[b'dd'] = b'dD'
 
     def start_requests(self):
-        yield CaseSensitiveRequest('https://httpbin.org/headers')
-
-    def parse(self, response):
-        ## NOTE: Why is the response's request header keys different from httpbin.org?
-        ##       is httpbin doing its own casing?
-        self.logger.info(f"{response.request.headers.keys() = }")
-        self.logger.info(f"{response.json() = }")
+        yield Request(
+            'https://httpbin.org/post',
+            body=json.dumps({'foo': 'bar'}),
+            method='POST',
+            # Sniff with Fiddler
+            # meta={'proxy': 'https://127.0.0.1:8866'}
+        )
+    
+    def parse(self, response): pass
